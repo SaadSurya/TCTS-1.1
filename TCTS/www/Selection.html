@@ -1,0 +1,205 @@
+<!Doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>TCTS</title>
+
+<link rel="stylesheet" href="css/jquery.mobile-1.2.0.min.css">
+<style>
+            #map-canvas {
+                height: 70%;
+                margin: 0px;
+                padding: 0px;
+                background-color:black;
+                margin-bottom:2%;
+                /*margin-top:55px;*/
+            }
+            html, body, #Selection, #content {
+                height: 100%;
+                /*background-color: #eee;*/
+                transform: translateZ(0px);
+				overflow:visible;
+            }
+			
+        </style>
+
+<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.mobile-1.2.0.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=geometry,places"></script>
+        <script type="text/javascript">
+            function saveRoute() {
+                getSteps();
+                var obj = JSON.parse(localStorage['obj']);
+                var xmlStr = obj.xmlStr;
+                var userName = localStorage['userName'];
+                var routeName = $('#routename').val();
+                $.ajax({
+                    type: "POST",
+                    //url: "Server/SaveRoute.php",
+                    url: "http://tcts.saadsurya.com/Server/SaveRoute.php",
+                    data: { UserName: userName, RouteName: routeName, xmlStr: xmlStr }
+                }).success(function (result) {
+                    if (result == 'True') { alert('Saved Successfully!'); 
+					$.mobile.changePage( "#Selection", { transition: "slideup"});}
+                    else { alert(result); }
+                });
+            }
+        </script>
+        <script>
+            var map;
+            var directionsDisplay = []
+            var directionsService = new google.maps.DirectionsService();
+            var fromLoc;
+            var toLoc;
+            function initializeLocations() {
+                fromLoc = getURLParameter('fromLoc');
+                toLoc = getURLParameter('toLoc');
+            }
+            function getURLParameter(name) {
+                return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null
+            }
+            function initialize() {
+                var karachi = new google.maps.LatLng(24.9201551, 67.094978999999970000);
+                var mapOptions = {
+                    zoom: 13,
+                    center: karachi
+                }
+                map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+                initializeLocations()
+                calcRoute();
+            }
+
+            function calcRoute() {
+                var request = {
+                    origin: fromLoc,
+                    destination: toLoc,
+                    travelMode: google.maps.TravelMode.DRIVING,
+                    provideRouteAlternatives: true
+                };
+                directionsService.route(request, function (response, status) {
+                    if (status == google.maps.DirectionsStatus.OK) {
+                        renderMultipleRoutes(response);
+                    }
+
+                });
+            }
+            function renderMultipleRoutes(response) {
+                for (var i = 0; i < directionsDisplay.length; i++) { directionsDisplay[i].setMap(null); };
+                directionsDisplay = [];
+				var combo = $('#routes');
+                for (var i = 0, len = response.routes.length; i < len; i++) {
+                    directionsDisplay[i] = new google.maps.DirectionsRenderer({
+                        map: map,
+                        directions: response,
+                        routeIndex: i,
+                        draggable: true
+                    });
+					
+                    combo.append('<option onClick="ChangeStatus(this);" selected value="'+i+'" ><a onclick="ChangeStatus(this)" href="javascript:">' + response.routes[i].summary + '</a></li>');
+					combo.selectmenu();
+        			combo.selectmenu('refresh', true);
+                }
+            }
+			
+            function getSteps() {
+                var routes = [];
+                var routesDistance = []
+                for (var i = 0; i < directionsDisplay.length; i++) {
+                    var route = directionsDisplay[i].map == null ? null : directionsDisplay[i].directions.routes[directionsDisplay[i].routeIndex];
+                    if (route) { routes.push(route);}
+                }
+                 
+                var str = '';//'<routes>';
+                for (var i = 0, len = routes.length; i < len; i++) {
+                    routesDistance[i] = routes[i].legs[0].distance.value;
+                   // str += '<route id="' + i + '"><overview_path>'
+                    str += '<point routeId="'+i+'" c="1" splat="' + routes[i].legs[0].start_location.k + '" splon="' + routes[i].legs[0].start_location.A + '" eplat="' + routes[i].overview_path[0].k + '" eplon="' + routes[i].overview_path[0].A + '"/>';
+                    lenj = routes[i].overview_path.length;
+                    for (var j = 1; j < (lenj - 2); j++) {
+                        str += '<point routeId="' + i + '" c="' + (j + 1) + '" splat="' + routes[i].overview_path[j].k + '" splon="' + routes[i].overview_path[j].A + '" eplat="' + routes[i].overview_path[j + 1].k + '" eplon="' + routes[i].overview_path[j + 1].A + '" />';
+                    }
+                    str += '<point routeId="' + i + '" c="' + (lenj - 2) + '" splat="' + routes[i].overview_path[lenj - 1].k + '" splon="' + routes[i].overview_path[lenj - 1].A + '" eplat="' + routes[i].legs[0].end_location.k + '" eplon="' + routes[i].legs[0].end_location.A + '" />';
+                    //str += '</overview_path></route>';
+                }
+                //str += '</routes>';
+                var obj = { routesDistance: routesDistance, xmlStr: str }
+                localStorage['obj'] = JSON.stringify(obj);
+                
+            }
+            function navigateToTraffic() {
+                getSteps();
+                window.location = 'Traffic.html';
+            }
+            google.maps.event.addDomListener(window, 'load', initialize);
+        </script>
+        <script>
+			function ChangeStatus(element) {
+                //$(element).parent().toggleClass('active');
+                //var index = $(element).val();//$(element).parent().parent().children().index($(element).parent());
+                //directionsDisplay[index].map == null ? directionsDisplay[index].setMap(map) : directionsDisplay[index].setMap(null);
+				for(var i = 0; i< directionsDisplay.length; i++){
+					directionsDisplay[i].setMap(null);
+					var opt = element.target.selectedOptions;
+					for(var j = 0; j < opt.length; j++){
+						if(opt[j].value == i){
+							directionsDisplay[i].setMap(map);		
+						}
+					}
+				}
+            }
+            function showLightBox() {
+                $('#lightBox').fadeIn('slow');
+            }
+            function hideLightBox() {
+                $('#lightBox').fadeOut('slow');
+                $('#routeName').val('');
+            }
+            $(document).ready(function () {
+                //$('#lightBox').fadeOut(0);
+				$('#routes').on('change', function(e) {
+    			//console.log(this.options[e.target.selectedIndex].text);
+				ChangeStatus(e);
+			});
+            
+            })
+        </script>
+</head>
+
+<body>
+<div data-role="page" id="Selection" data-theme="a">
+  <div data-role="header" >
+    
+    <select  name="routes" id="routes" multiple="multiple" data-native-menu="false" data-icon="" data-iconpos="left" >
+    	<option>Select Routes</option>
+      <!--<option value="option1">Route 1</option>
+      <option value="option2">Route 2</option>
+      <option value="option3">Route 3</option>
+      <option value="option3">Route 4</option>-->
+    </select>
+  </div>
+  <div id="content" data-role="content">
+      <div id="map-canvas">
+    	
+    </div>
+    <button  onClick="navigateToTraffic();">GO</button>
+      <a href="#RouteName" data-rel="dialog" data-transition="slidedown" data-role="button">Save</a>
+  </div>
+</div>
+<div data-role="page" id="RouteName">
+  <div data-role="header">
+    <h1>Route Name</h1>
+  </div>
+  <div data-role="content">
+    <div data-role="fieldcontain">
+      <input type="text" name="routename" id="routename" value="" placeholder="Route Name" style="width:100%;" />
+    </div>
+    <button onClick="saveRoute();">Save</button>
+  		
+  </div>
+</div>
+
+
+</body>
+</html>
