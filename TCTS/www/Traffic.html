@@ -41,6 +41,7 @@
         var routesTimePerPatch = [];
 
         var lastColor;
+        var lastSpeed;
         var xmlStr;
         
         function getDataByRouteId(routeId, time) {
@@ -77,21 +78,39 @@
             var obj = eval('(' + str + ')');//JSON.parse(str);
             removeLines();
             removeMarkers();
+			map.setCenter(new google.maps.LatLng(obj[0].spLat, obj[0].spLon));
             var i = 0;
             displayMarker(obj[0].spLat, obj[0].spLon);
+			var firstColor = [];
+			var firstSpeed = [];
+			for (var property in obj) {
+                if (obj.hasOwnProperty(property)) {
+                    var o = obj[property];
+					if(firstColor[o.routeId]==null || firstSpeed[o.routeId]==null){
+						if(firstColor[o.routeId]==null){firstColor[o.routeId] = getFirstColor(o.avgSpeed)};
+						if(firstSpeed[o.routeId]==null){firstSpeed[o.routeId] = getFirstSpeed(o.avgSpeed)};
+					}
+					else{ continue;}
+                }
+            }
             for (var property in obj) {
                 if (obj.hasOwnProperty(property)) {
                     var o = obj[property];
-                    if (o.pointIndex == 1) { routesAvgSpeed[o.routeId] = 0; routesAvgSpeedCount[o.routeId] = 0; routesVehiclesCount[o.routeId] = 0; lastColor = "yellow";
+                    if (o.pointIndex == 1) { routesAvgSpeed[o.routeId] = 0; routesAvgSpeedCount[o.routeId] = 0; routesVehiclesCount[o.routeId] = 0; 
+						lastColor = (firstColor[o.routeId]==null? 'black':firstColor[o.routeId]);
+						lastSpeed = (firstSpeed[o.routeId]==null? 30 : firstSpeed[o.routeId]);
                         routesDistancePerPatch[o.routeId] = 0; routesTimePerPatch[o.routeId] = 0;}
-                    routesAvgSpeed[o.routeId] += o.avgSpeed;
-                    routesAvgSpeedCount[o.routeId] += o.avgSpeed > 0 ? 1 : 0;
+					
+					lastSpeed = getSpeed(o.avgSpeed);
+                    
+					routesAvgSpeed[o.routeId] += lastSpeed;//o.avgSpeed;
+                    routesAvgSpeedCount[o.routeId] += 1;//o.avgSpeed > 0 ? 1 : 0;
                     routesVehiclesCount[o.routeId] += o.noOfVehicles;
                     routes[i] = o.routeId;
                     ///////////////////////////////////////
                     var coordinates = [new google.maps.LatLng(o.spLat, o.spLon), new google.maps.LatLng(o.epLat, o.epLon)];
                     routesDistancePerPatch[o.routeId] += calcDistance(coordinates[0], coordinates[1]);
-                    routesTimePerPatch[o.routeId] += (calcDistance(coordinates[0], coordinates[1]) / 1000) / (o.avgSpeed > 0 ? o.avgSpeed : 30);
+                    routesTimePerPatch[o.routeId] += (calcDistance(coordinates[0], coordinates[1]) / 1000) / lastSpeed;
                     ///////////////////////////////////////
                     lastColor = getColor(o.avgSpeed);
                     lines[i] = new google.maps.Polyline({
@@ -107,6 +126,26 @@
             }
             displayMarker(obj[(i - 1)].spLat, obj[(i - 1)].spLon);
             SetInfoWindows();
+        }
+		function getFirstSpeed(speed) {
+			return (speed <= 0 ? null : speed);
+        }
+		function getSpeed(speed) {
+            return (speed <= 0 ? lastSpeed : speed);
+        }
+		function getFirstColor(speed) {
+            if (speed <= 0) {
+                return null;
+            }
+            else if (speed <= 10) {
+                return "red";
+            } else if (speed <= 20) {
+                return "blue";
+            } else if (speed <= 40) {
+                return "yellow";
+            } else {
+                return "green";
+            }
         }
         function getColor(speed) {
             if (speed <= 0) {
@@ -180,14 +219,14 @@
                 //displayText += "Estimated Time: " + ((routesDistance[routes[i]] / 1000) / (routesAvgSpeed[routes[i]] / routesAvgSpeedCount[routes[i]])).toFixed(2) + " hour(s)<br/>";
                 //displayText += "No. Of Vehicles: " + routesVehiclesCount[routes[i]] + "";
                 displayText = "<p style='color:black;'>Total Distance: " + (routesDistancePerPatch[routes[i]] / 1000).toFixed(2) + "km <br>"
-                //displayText += "Total Average Speed: " + (routesAvgSpeed[routes[i]] / routesAvgSpeedCount[routes[i]]).toFixed(2) + " km/h<br>";
+                //displayText += "Total Average Speed: " + (routesAvgSpeed[routes[i]] / routesAvgSpeedCount[routes[i]]).toFixed(2) + " km / h <br> ";
                 displayText += "Total Average Speed: " + ((routesDistancePerPatch[routes[i]] / 1000)/(routesTimePerPatch[routes[i]])).toFixed(2) + " km/h<br>";
                 var totalSeconds = ((routesTimePerPatch[routes[i]])*3600).toFixed(0);
 				var hours = Math.floor(totalSeconds / 3600);
 				totalSeconds %= 3600;
 				var minutes = Math.floor(totalSeconds / 60);
 				var seconds = totalSeconds % 60;
-				//displayText += "Estimated Time: " + (routesTimePerPatch[routes[i]]).toFixed(2) + " hour(s)<br/>";
+				displayText += "Estimated Time: " + (routesTimePerPatch[routes[i]]).toFixed(2) + " hour(s)<br/>";
 				displayText += "Estimated Time: " + String(hours) +":"+ String(minutes) +":"+ String(seconds) + "<br/>";
                 displayText += "No. Of Vehicles: " + routesVehiclesCount[routes[i]] + "</p>";
                 attachInstructionText(lines[i], displayText);
