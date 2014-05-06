@@ -20,7 +20,7 @@
                     url: "http://tcts.saadsurya.com/Server/Register.php",
                     data: { UserName: un, Email: email, Password: pass }
                 }).success(function (result) {
-                    if (result == 1) { alert('Registered Successfully!'); window.location = 'Index.html';}
+                    if (result == 1) { alert('Registered Successfully!'); window.location = 'index.html';}
                     else if (result == 0) { alert('Registration Failed. UserName Already Exists.'); $('#username').focus(); }
                     else { alert('Registration Failed!'); }
                 });

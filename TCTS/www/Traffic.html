@@ -162,22 +162,6 @@
         }
 
         function calcRoute() {
-
-            //var start = document.getElementById('start').value;
-            //var end = document.getElementById('end').value;
-            //var request = {
-            //    origin: start=="point"?new google.maps.LatLng(24.9557, 67.0779):start,
-            //    destination: end=="point"?new google.maps.LatLng(24.8922, 67.1218):end,
-            //    travelMode: google.maps.TravelMode.DRIVING,
-            //    provideRouteAlternatives: true
-            //};
-            //directionsService.route(request, function (response, status) {
-            //    if (status == google.maps.DirectionsStatus.OK) {
-            //        //getSteps(response);
-                    
-            //    }
-                
-            //});
             var routeId = getURLParameter('routeId');
             if (routeId) {
                 getDataByRouteId( routeId, $('#time').val())
@@ -188,29 +172,6 @@
             }
         }
 
-        //function getSteps(directionResult) {
-        //    var routes = directionResult.routes;
-        //    var str = '<routes>';
-        //    for (var i = 0, len = routes.length; i < len; i++) {
-        //        routesDistance[i] = routes[i].legs[0].distance.value;
-        //        str += '<route id="' + i + '"><overview_path>'
-        //        str += '<point lat="' + routes[i].legs[0].start_location.k + '" lon="' + routes[i].legs[0].start_location.A + '" />';
-        //        for (var j = 0, lenj = routes[i].overview_path.length; j < lenj; j++) {
-        //            str += '<point lat="' + routes[i].overview_path[j].k + '" lon="' + routes[i].overview_path[j].A + '" />';
-        //        }
-        //        str += '<point lat="' + routes[i].legs[0].end_location.k + '" lon="' + routes[i].legs[0].end_location.A + '" />';
-        //        str += '</overview_path></route>';
-        //    }
-        //    str += '</routes>';
-        //    getData($('#time').val(), str);
-        //}
-
-        //function receiveMessage(event) {
-        //    //if (event.origin !== "Selection.html")
-        //    //    return;
-        //    xmlStr = event.data;
-        //    //routesDistance = event.data.routesDistance;
-        //}
         function SetInfoWindows() {
             var displayText ;
             for (var i = 0, len = routes.length; i < len; i++) {
@@ -218,10 +179,17 @@
                 //displayText += "Total Average Speed: " + (routesAvgSpeed[routes[i]] / routesAvgSpeedCount[routes[i]]).toFixed(2) + " km/h<br/>";
                 //displayText += "Estimated Time: " + ((routesDistance[routes[i]] / 1000) / (routesAvgSpeed[routes[i]] / routesAvgSpeedCount[routes[i]])).toFixed(2) + " hour(s)<br/>";
                 //displayText += "No. Of Vehicles: " + routesVehiclesCount[routes[i]] + "";
-                displayText = "Total Distance: " + (routesDistancePerPatch[routes[i]] / 1000).toFixed(2) + "km <br>"
-                displayText += "Total Average Speed: " + (routesAvgSpeed[routes[i]] / routesAvgSpeedCount[routes[i]]).toFixed(2) + " kmfrasl;h<br>";
-                displayText += "Estimated Time: " + (routesTimePerPatch[routes[i]]).toFixed(2) + " hour(s)<br/>";
-                displayText += "No. Of Vehicles: " + routesVehiclesCount[routes[i]] + "";
+                displayText = "<p style='color:black;'>Total Distance: " + (routesDistancePerPatch[routes[i]] / 1000).toFixed(2) + "km <br>"
+                //displayText += "Total Average Speed: " + (routesAvgSpeed[routes[i]] / routesAvgSpeedCount[routes[i]]).toFixed(2) + " km/h<br>";
+                displayText += "Total Average Speed: " + ((routesDistancePerPatch[routes[i]] / 1000)/(routesTimePerPatch[routes[i]])).toFixed(2) + " km/h<br>";
+                var totalSeconds = ((routesTimePerPatch[routes[i]])*3600).toFixed(0);
+				var hours = Math.floor(totalSeconds / 3600);
+				totalSeconds %= 3600;
+				var minutes = Math.floor(totalSeconds / 60);
+				var seconds = totalSeconds % 60;
+				//displayText += "Estimated Time: " + (routesTimePerPatch[routes[i]]).toFixed(2) + " hour(s)<br/>";
+				displayText += "Estimated Time: " + String(hours) +":"+ String(minutes) +":"+ String(seconds) + "<br/>";
+                displayText += "No. Of Vehicles: " + routesVehiclesCount[routes[i]] + "</p>";
                 attachInstructionText(lines[i], displayText);
             }
         }
