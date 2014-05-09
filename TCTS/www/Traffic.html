@@ -268,7 +268,9 @@
   </div>-->
   <div class="ui-bar ui-bar-a" style="text-align:center; padding:0;">
     <div style="width:100%; text-align:center; margin:0; padding:0;" data-role="fieldcontain">
-      <input data-mini="true" type="time" name="time" id="time" value="16:00:00" style="margin:0;" onChange="calcRoute();" />
+      <input data-mini="true" type="time" name="time" id="time" value="16:00:00" style="margin:0; display:none; visibility:hidden" onChange="calcRoute();" />
+      <button onClick="calcRoute();" >Refresh</button>
+    	
     </div>
 	<h1>Slow</h1>
     <h1 style="color: #F00">------</h1>
