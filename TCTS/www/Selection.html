@@ -120,7 +120,7 @@
                     for (var j = 1; j < (lenj - 2); j++) {
                         str += '<point routeId="' + i + '" c="' + (j + 1) + '" splat="' + routes[i].overview_path[j].k + '" splon="' + routes[i].overview_path[j].A + '" eplat="' + routes[i].overview_path[j + 1].k + '" eplon="' + routes[i].overview_path[j + 1].A + '" />';
                     }
-                    str += '<point routeId="' + i + '" c="' + (lenj - 2) + '" splat="' + routes[i].overview_path[lenj - 1].k + '" splon="' + routes[i].overview_path[lenj - 1].A + '" eplat="' + routes[i].legs[0].end_location.k + '" eplon="' + routes[i].legs[0].end_location.A + '" />';
+                    str += '<point routeId="' + i + '" c="' + (lenj - 1) + '" splat="' + routes[i].overview_path[lenj - 1].k + '" splon="' + routes[i].overview_path[lenj - 1].A + '" eplat="' + routes[i].legs[0].end_location.k + '" eplon="' + routes[i].legs[0].end_location.A + '" />';
                     //str += '</overview_path></route>';
                 }
                 //str += '</routes>';
