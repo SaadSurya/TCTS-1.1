@@ -43,7 +43,20 @@
         var lastColor;
         var lastSpeed;
         var xmlStr;
-        
+        $(document).ready(function(e) {
+			var d = new Date();
+			var time = 
+			("0" + d.getHours()).slice(-2)   + ":" + 
+			("0" + d.getMinutes()).slice(-2) + ":00" ;
+            $('#time').val(time);
+        });
+		function getCurrentTime(){
+			var d = new Date();
+			var time = 
+			("0" + d.getHours()).slice(-2)   + ":" + 
+			("0" + d.getMinutes()).slice(-2) + ":00";
+			return time;
+		}
         function getDataByRouteId(routeId, time) {
             $.ajax({
                 type: "POST",
@@ -196,18 +209,19 @@
             directionsDisplay = [];
             
             stepDisplay = new google.maps.InfoWindow();
-            calcRoute();
+			var t = getCurrentTime()//$('#time').val();
+            calcRoute(t);
             
         }
 
-        function calcRoute() {
+        function calcRoute(time) {
             var routeId = getURLParameter('routeId');
             if (routeId) {
-                getDataByRouteId( routeId, $('#time').val())
+                getDataByRouteId( routeId, time)
             }
             else {
                 receiveData();
-                getData($('#time').val());
+                getData(time);
             }
         }
 
@@ -226,8 +240,8 @@
 				totalSeconds %= 3600;
 				var minutes = Math.floor(totalSeconds / 60);
 				var seconds = totalSeconds % 60;
-				displayText += "Estimated Time: " + (routesTimePerPatch[routes[i]]).toFixed(2) + " hour(s)<br/>";
-				displayText += "Estimated Time: " + String(hours) +":"+ String(minutes) +":"+ String(seconds) + "<br/>";
+				//displayText += "Estimated Time: " + (routesTimePerPatch[routes[i]]).toFixed(2) + " hour(s)<br/>";
+				displayText += "Estimated Time: " + ("0"+hours).slice(-2) +":"+ ("0"+minutes).slice(-2) +":"+ ("0"+seconds).slice(-2) + "<br/>";
                 displayText += "No. Of Vehicles: " + routesVehiclesCount[routes[i]] + "</p>";
                 attachInstructionText(lines[i], displayText);
             }
@@ -250,27 +264,19 @@
         }
 
         google.maps.event.addDomListener(window, 'load', initialize);
-		//$('#time').onchange('change', function(e){
-//			calcRoute();
-//			});
+
 </script>
-<!--<script type="text/javascript">
-      $(document).ready(function () {
-        initialize();
-      });
-  </script>-->
+
 </head>
 
 <body>
 <div data-role="page" id="Traffic" data-theme="a">
-<!--  <div data-role="header">
-    <h1>Header</h1>
-  </div>-->
+
   <div class="ui-bar ui-bar-a" style="text-align:center; padding:0;">
     <div style="width:100%; text-align:center; margin:0; padding:0;" data-role="fieldcontain">
-      <input data-mini="true" type="time" name="time" id="time" value="16:00:00" style="margin:0; display:none; visibility:hidden" onChange="calcRoute();" />
-      <button onClick="calcRoute();" >Refresh</button>
-    	
+     <!-- <input data-mini="true" type="time" name="time" id="time"  style="margin:0; "  />
+      <button onClick="calcRoute($('#time').val());" >Get</button>-->    	
+<button onClick="calcRoute(getCurrentTime());" >Refresh</button>
     </div>
 	<h1>Slow</h1>
     <h1 style="color: #F00">------</h1>
