@@ -5,10 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>TCTS</title>
-<!--	<link href="css/themes/default/jquery.mobile-1.4.2.min.css" rel="stylesheet" type="text/css">
 
-	<script src="js/jquery.js"></script>
-	<script src="js/jquery.mobile-1.4.2.min.js"></script>-->
 <link rel="stylesheet" href="css/jquery.mobile-1.2.0.min.css">
 <style>
             #map-canvas {
@@ -17,11 +14,9 @@
                 padding: 0px;
                 background-color:black;
                 margin-bottom:2%;
-                /*margin-top:55px;*/
             }
             html, body, #Search, #content {
                 height: 100%;
-                /*background-color: #eee;*/
                 transform: translateZ(0px);
 				overflow:visible;
             }
@@ -77,13 +72,15 @@
                 for (var route in routes) {
                     if (routes.hasOwnProperty(route)) {
                         var r = routes[route];
-                        $('#routes').append('<li><a href="Traffic.html?routeId='+r.routeId+'" data-ajax="false">' + r.routeName + '</a></li>');
+                        $('#routes').append('<li data-routeid="'+r.routeId+'"><a href="Traffic.html?routeId='+r.routeId+'" data-ajax="false">' + r.routeName + '</a>'
+												+'<a onClick="deleteRoute(this.parentNode)"></a>'
+												+'</li>');
 						
                     }
                 }
 				$("#routes").listview("refresh");
             }
-
+			
             function mapLoacation(input) {
                 var options = {
                     types: []//['establishment']
@@ -138,12 +135,22 @@
             google.maps.event.addDomListener(window, 'load', initialize);
         </script>
   <script type="text/javascript">
-      //$('#Search').on( 'pageinit',function(event){
-//        initialize();
-//      });
 	  $(document).ready( function(event){
         getRoutes();
       });
+	  function deleteRoute(li) {
+                var routeId = $(li).data("routeid")
+                $.ajax({
+                    type: "POST",
+                    //url: "Server/DeleteRoute.php",
+                    url: "http://tcts.saadsurya.com/Server/DeleteRoute.php",
+                    data: { RouteID: routeId}
+                }).success(function (result) {
+                    if (result == 'True') { $(li).remove(); alert('Deleted Successfully!'); }
+                    else { alert(result); }
+                });
+            }
+			
   </script>
 </head>
 
@@ -178,11 +185,12 @@
   </div>
 
   <div data-role="content">
-    <ul id="routes" data-role="listview">
+    <ul id="routes" data-role="listview" data-split-icon="delete">
 <!--      <li><a href="#">Route1</a></li>
       <li><a href="#">Route2</a></li>
       <li><a href="#">Route3</a></li>
 -->    </ul>
+
   </div>
     <div data-role="footer">
     <h4></h4>
