@@ -247,7 +247,7 @@
 				var seconds = totalSeconds % 60;
 				//displayText += "Estimated Time: " + (routesTimePerPatch[routes[i]]).toFixed(2) + " hour(s)<br/>";
 				displayText += "Estimated Time: " + ("0"+hours).slice(-2) +":"+ ("0"+minutes).slice(-2) +":"+ ("0"+seconds).slice(-2) + "<br/>";
-                displayText += "No. Of Vehicles: " + routesVehiclesCount[routes[i]] + ""; 
+                //displayText += "No. Of Vehicles: " + routesVehiclesCount[routes[i]] + "</p>"; 
                 displayText += "No. Of Vehicles: " + routesDistVehiclesCount[routes[i]] + "</p>";
 				attachInstructionText(lines[i], displayText);
             }
