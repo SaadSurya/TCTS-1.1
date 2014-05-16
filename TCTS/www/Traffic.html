@@ -39,7 +39,9 @@
         var routesVehiclesCount = [];
         var routesDistancePerPatch = [];
         var routesTimePerPatch = [];
-
+		
+		var routesDistVehiclesCount = [];
+		
         var lastColor;
         var lastSpeed;
         var xmlStr;
@@ -93,6 +95,7 @@
             removeMarkers();
 			map.setCenter(new google.maps.LatLng(obj[0].spLat, obj[0].spLon));
             var i = 0;
+			
             displayMarker(obj[0].spLat, obj[0].spLon);
 			var firstColor = [];
 			var firstSpeed = [];
@@ -112,13 +115,15 @@
                     if (o.pointIndex == 1) { routesAvgSpeed[o.routeId] = 0; routesAvgSpeedCount[o.routeId] = 0; routesVehiclesCount[o.routeId] = 0; 
 						lastColor = (firstColor[o.routeId]==null? 'black':firstColor[o.routeId]);
 						lastSpeed = (firstSpeed[o.routeId]==null? 30 : firstSpeed[o.routeId]);
-                        routesDistancePerPatch[o.routeId] = 0; routesTimePerPatch[o.routeId] = 0;}
+                        routesDistancePerPatch[o.routeId] = 0; routesTimePerPatch[o.routeId] = 0;
+						routesDistVehiclesCount[o.routeId] = 0;}
 					
 					lastSpeed = getSpeed(o.avgSpeed);
                     
 					routesAvgSpeed[o.routeId] += lastSpeed;//o.avgSpeed;
                     routesAvgSpeedCount[o.routeId] += 1;//o.avgSpeed > 0 ? 1 : 0;
                     routesVehiclesCount[o.routeId] += o.noOfVehicles;
+					routesDistVehiclesCount[o.routeId] += o.distVehCount;
                     routes[i] = o.routeId;
                     ///////////////////////////////////////
                     var coordinates = [new google.maps.LatLng(o.spLat, o.spLon), new google.maps.LatLng(o.epLat, o.epLon)];
@@ -242,8 +247,9 @@
 				var seconds = totalSeconds % 60;
 				//displayText += "Estimated Time: " + (routesTimePerPatch[routes[i]]).toFixed(2) + " hour(s)<br/>";
 				displayText += "Estimated Time: " + ("0"+hours).slice(-2) +":"+ ("0"+minutes).slice(-2) +":"+ ("0"+seconds).slice(-2) + "<br/>";
-                displayText += "No. Of Vehicles: " + routesVehiclesCount[routes[i]] + "</p>";
-                attachInstructionText(lines[i], displayText);
+                displayText += "No. Of Vehicles: " + routesVehiclesCount[routes[i]] + ""; 
+                displayText += "No. Of Vehicles: " + routesDistVehiclesCount[routes[i]] + "</p>";
+				attachInstructionText(lines[i], displayText);
             }
         }
 
