@@ -115,12 +115,12 @@
                 for (var i = 0, len = routes.length; i < len; i++) {
                     routesDistance[i] = routes[i].legs[0].distance.value;
                    // str += '<route id="' + i + '"><overview_path>'
-                    str += '<point routeId="'+i+'" c="1" splat="' + routes[i].legs[0].start_location.k + '" splon="' + routes[i].legs[0].start_location.A + '" eplat="' + routes[i].overview_path[0].k + '" eplon="' + routes[i].overview_path[0].A + '"/>';
+                    str += '<point routeId="'+i+'" c="1" splat="' + routes[i].legs[0].start_location.k + '" splon="' + routes[i].legs[0].start_location.B + '" eplat="' + routes[i].overview_path[0].k + '" eplon="' + routes[i].overview_path[0].B + '"/>';
                     lenj = routes[i].overview_path.length;
                     for (var j = 1; j < (lenj - 2); j++) {
-                        str += '<point routeId="' + i + '" c="' + (j + 1) + '" splat="' + routes[i].overview_path[j].k + '" splon="' + routes[i].overview_path[j].A + '" eplat="' + routes[i].overview_path[j + 1].k + '" eplon="' + routes[i].overview_path[j + 1].A + '" />';
+                        str += '<point routeId="' + i + '" c="' + (j + 1) + '" splat="' + routes[i].overview_path[j].k + '" splon="' + routes[i].overview_path[j].B + '" eplat="' + routes[i].overview_path[j + 1].k + '" eplon="' + routes[i].overview_path[j + 1].B + '" />';
                     }
-                    str += '<point routeId="' + i + '" c="' + (lenj - 1) + '" splat="' + routes[i].overview_path[lenj - 1].k + '" splon="' + routes[i].overview_path[lenj - 1].A + '" eplat="' + routes[i].legs[0].end_location.k + '" eplon="' + routes[i].legs[0].end_location.A + '" />';
+                    str += '<point routeId="' + i + '" c="' + (lenj - 1) + '" splat="' + routes[i].overview_path[lenj - 1].k + '" splon="' + routes[i].overview_path[lenj - 1].B + '" eplat="' + routes[i].legs[0].end_location.k + '" eplon="' + routes[i].legs[0].end_location.B + '" />';
                     //str += '</overview_path></route>';
                 }
                 //str += '</routes>';
